@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>CampusConnect - Forum Élèves</title>
+<style>
+/* Reset & base */
+* { box-sizing: border-box; margin:0; padding:0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display:flex; justify-content:center; padding:20px; }
+
+/* Container principal */
+.container { width: 800px; background: #fff; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); padding:20px; }
+
+/* Titres */
+h1,h2 { color: #075E54; margin-bottom: 15px; }
+
+/* Inputs et textarea */
+input, textarea { width: 100%; padding:10px; margin:5px 0; border-radius:8px; border:1px solid #ccc; font-size:16px; }
+textarea { resize:none; }
+
+/* Boutons */
+button { padding:10px 15px; background:#075E54; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:16px; margin-top:5px; transition:0.3s; }
+button:hover { background:#128C7E; }
+
+/* Section forum */
+#forum-section { display:none; }
+#threads { margin-top:20px; }
+
+/* Bulles de message */
+.message { background:#ECE5DD; padding:10px 15px; border-radius:20px; margin:8px 0; position:relative; max-width:75%; display:inline-block; }
+.message.you { background:#DCF8C6; margin-left:auto; text-align:right; }
+.message .avatar { width:30px; height:30px; border-radius:50%; background:#075E54; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; position:absolute; top:50%; transform:translateY(-50%); }
+.message.you .avatar { left:auto; right:-40px; }
+.message.other .avatar { left:-40px; }
+
+/* Liste des sujets */
+.thread { background:#f9f9f9; padding:12px 15px; margin:8px 0; border-radius:12px; border-left:4px solid #075E54; display:flex; justify-content:space-between; align-items:center; transition:0.3s; }
+.thread:hover { background:#f0f0f0; cursor:pointer; }
+
+/* Responsive */
+@media(max-width:850px){ .container { width:95%; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>CampusConnect</h1>
+
+<div id="login-section">
+<h2>Connexion / Inscription</h2>
+<input type="text" id="username" placeholder="Nom d'utilisateur">
+<button onclick="login()">Se connecter / S'inscrire</button>
+</div>
+
+<div id="forum-section">
+<h2>Bonjour <span id="current-user"></span> !</h2>
+<button onclick="logout()">Se déconnecter</button>
+
+<h3>Créer un sujet</h3>
+<input type="text" id="thread-title" placeholder="Titre du sujet">
+<textarea id="thread-content" placeholder="Message initial"></textarea>
+<button onclick="createThread()">Créer le sujet</button>
+
+<h3>Sujets</h3>
+<div id="threads"></div>
+
+<h3>Messages</h3>
+<div id="messages"></div>
+</div>
+
+</div>
+
+<script>
+// Utilisateur actuel
+let currentUser = null;
+
+// Vérifier si déjà connecté
+if(localStorage.getItem('forumUser')){
+    currentUser = localStorage.getItem('forumUser');
+    showForum();
+}
+
+// Connexion / inscription
+function login(){
+    const username = document.getElementById('username').value.trim();
+    if(!username) return alert("Nom d'utilisateur requis !");
+    currentUser = username;
+    localStorage.setItem('forumUser', username);
+    showForum();
+}
+
+// Déconnexion
+function logout(){
+    localStorage.removeItem('forumUser');
+    location.reload();
+}
+
+// Afficher forum
+function showForum(){
+    document.getElementById('login-section').style.display='none';
+    document.getElementById('forum-section').style.display='block';
+    document.getElementById('current-user').innerText=currentUser;
+    loadThreads();
+    loadMessages();
+}
+
+// Créer un sujet
+function createThread(){
+    const title = document.getElementById('thread-title').value.trim();
+    const content = document.getElementById('thread-content').value.trim();
+    if(!title || !content) return alert("Titre et message requis !");
+    
+    let threads = JSON.parse(localStorage.getItem('forumThreads') || '[]');
+    threads.push({id:Date.now(), title, posts:[{user:currentUser, content}]});
+    localStorage.setItem('forumThreads', JSON.stringify(threads));
+    
+    document.getElementById('thread-title').value='';
+    document.getElementById('thread-content').value='';
+    loadThreads();
+    loadMessages();
+}
+
+// Charger sujets
+function loadThreads(){
+    const threadsDiv=document.getElementById('threads');
+    threadsDiv.innerHTML='';
+    let threads=JSON.parse(localStorage.getItem('forumThreads')||'[]');
+    threads.forEach(t=>{
+        const div=document.createElement('div');
+        div.className='thread';
+        div.innerHTML=`<span>${t.title}</span><button onclick="viewThread(${t.id})">Voir / Répondre</button>`;
+        threadsDiv.appendChild(div);
+    });
+}
+
+// Voir un sujet et répondre
+function viewThread(id){
+    let threads=JSON.parse(localStorage.getItem('forumThreads')||'[]');
+    const thread=threads.find(t=>t.id===id);
+    if(!thread) return;
+    let msg = prompt(`${thread.posts.map(p=>p.user+': '+p.content).join('\n')}\n\nVotre réponse:`,'');
+    if(msg){
+        thread.posts.push({user:currentUser, content:msg});
+        localStorage.setItem('forumThreads',JSON.stringify(threads));
+        loadThreads();
+        loadMessages();
+    }
+}
+
+// Charger tous messages dynamiquement
+function loadMessages(){
+    const messagesDiv=document.getElementById('messages');
+    messagesDiv.innerHTML='';
+    let threads=JSON.parse(localStorage.getItem('forumThreads')||'[]');
+    threads.forEach(t=>{
+        t.posts.forEach(p=>{
+            const div=document.createElement('div');
+            div.className='message '+(p.user===currentUser?'you':'other');
+            div.innerHTML=`<div class="avatar">${p.user.charAt(0).toUpperCase()}</div>${p.user}: ${p.content}`;
+            messagesDiv.appendChild(div);
+        });
+    });
+}
+</script>
+
+</body>
+</html>

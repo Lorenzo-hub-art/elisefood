@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Animations Pro</title>
+<style>
+/* ======================== */
+/* Styles généraux */
+body {
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background: #1a1a1a;
+  gap: 50px;
+  padding: 50px;
+}
+
+/* ======================== */
+/* Bouton animé */
+.button {
+  position: relative;
+  display: inline-block;
+  padding: 15px 40px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: bold;
+  background: linear-gradient(45deg, #6a11cb, #2575fc);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: 0.5s;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.2);
+  transform: skewX(-20deg);
+  transition: 0.5s;
+}
+
+.button:hover::before {
+  left: 200%;
+}
+
+.button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+}
+
+/* ======================== */
+/* Carte rebondissante */
+.card {
+  width: 250px;
+  height: 350px;
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+/* ======================== */
+/* Cercle animé */
+.circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: conic-gradient(#ff6a00, #ee0979, #ff6a00);
+  animation: spin 2s linear infinite, pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* ======================== */
+/* Texte glissant */
+.slide-text {
+  font-size: 40px;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(90deg, #12c2e9, #c471ed, #f64f59);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: slidebg 3s ease infinite;
+}
+
+@keyframes slidebg {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ======================== */
+/* Barre de chargement */
+.loader {
+  width: 300px;
+  height: 20px;
+  background: #333;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.loader::before {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #ff6a00, #ee0979);
+  animation: load 2s ease-in-out infinite;
+}
+
+@keyframes load {
+  0% { width: 0; }
+  50% { width: 100%; }
+  100% { width: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Bouton -->
+<button class="button">Clique Moi</button>
+
+<!-- Carte rebondissante -->
+<div class="card">Rebond</div>
+
+<!-- Cercle animé -->
+<div class="circle"></div>
+
+<!-- Texte glissant -->
+<div class="slide-text">Animation Pro</div>
+
+<!-- Barre de chargement -->
+<div class="loader"></div>
+
+</body>
+</html>
